@@ -1,0 +1,39 @@
+﻿<Window x:Class="Project_PlanningTool_Ambulance_Icket_Michael.NewPerson"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Project_PlanningTool_Ambulance_Icket_Michael"
+        mc:Ignorable="d"
+        Title="NewPerson" SizeToContent="WidthAndHeight" Background="LightGray" ResizeMode="NoResize">
+    <GroupBox Background="LightGray" Header="Gegegevens Nieuwe Ambulancier">
+    <Grid Name="GridNewP" Width="350">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Background="LightYellow" Grid.Column="0">
+                <TextBlock Margin="10" Height="20" FontSize="15" Text="Id nummer"/>
+                <TextBlock Margin="10" Height="20" FontSize="15" Text="Naam"/>
+                <TextBlock Margin="10" Height="20" FontSize="15" Text="Voornaam"/>
+                <TextBlock Margin="10" Height="20" FontSize="15" Text="Telefoonnr"/>
+                <TextBlock Margin="10" Height="20" FontSize="15" Text="Type Ambulancier"/>
+                <TextBlock Margin="10" Height="20" FontSize="15" Text="Ambu-brevet (jaar)"/>
+                <TextBlock Margin="10" FontSize="15" Text="C-Rijbewijs"/>
+                <TextBlock Margin="10" FontSize="15" Text="Planner"/>
+                <Button x:Name="btnOpen" Margin="10" Height="25" FontSize="15" Content="Open" Click="btnOpen_Click"/>
+            </StackPanel>
+            <StackPanel x:Name="SpNewP" Background="LightBlue" Grid.Column="1">
+                <TextBox x:Name="TxtID" Margin="10" Height="20" FontSize="15" Width="150"/>
+                <TextBox x:Name="TxtNaam" Margin="10" Height="20" FontSize="15" Width="150"/>
+                <TextBox x:Name="TxtVNaam" Margin="10" Height="20" FontSize="15" Width="150"/>
+                <TextBox x:Name="TxtTel" Margin="10" Height="20" FontSize="15" Width="150"/>
+                <ComboBox x:Name="CmbTypeA" Margin="10" Height="20" FontSize="10" Width="150"/>
+                <TextBox x:Name="TxtJaar" Margin="10" Height="20" FontSize="15" Width="150"/>
+                <CheckBox x:Name="cbCrijbewijs" Margin="10" Height="20" HorizontalAlignment="Center"/>
+                <CheckBox x:Name="cbPlanner" Margin="10" Height="20" HorizontalAlignment="Center"/>
+                <Button x:Name="btnSave" Margin="10" Height="25" FontSize="15" Content="Save" Click="btnSave_Click"/>
+            </StackPanel>
+        </Grid>
+    </GroupBox>
+</Window>

@@ -17,8 +17,8 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Label[,] labelKalender = new Label[24,14];
-        private ComboBox[,] cbxKalender = new ComboBox[24,14];
+        private List<Label> labelKalender = new List<Label>();
+        private List<ComboBox> cbxKalender = new List<ComboBox>();
         bool toggle = true;
         
         public MainWindow()
@@ -26,11 +26,10 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
             InitializeComponent();
             GenereerTime();
             BasisGrid();
-            
         }
         private void BasisGrid()
         {
-            // Genereer Week Nummer en Uren Shift
+            // Genereer Opmaak Week Nummer en Uren Shift
             int p = 0;
             for (int r = 0; r < 6; r++)
             {
@@ -78,6 +77,8 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
         }
         private void GenereerTime()
         {
+            // Huidig jaartal, cbx vullen: twee jaar ervoor en twee jaar erna
+            // Huidige maand, cbx vullen met een enum
             int huidigJaar = DateTime.Now.Year;
             int huidigeMaand = DateTime.Now.Month;
             List<string> jaren = new List<string>();
@@ -111,6 +112,8 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
                 int jaar = int.Parse(CmbJaar.SelectedItem.ToString());
 
                 DateTime eersteVanDeMaand = new DateTime(jaar, maand, 1);
+
+                //dag van de week: zondag = 0 // zondag (0+6) // 6/7= rest 6 % modulus operator zorgt ervoor dat de waarden binnen het bereik 0–6 blijven
                 int dagVanDeWeek = ((int)eersteVanDeMaand.DayOfWeek + 6) % 7;
 
                 // Houd rij en kolom bij voor plaatsing in het hoofdgrid
@@ -127,22 +130,18 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
                     Grid dagGrid = new Grid
                     {
                         Margin = new Thickness(1),
-                        Background = Brushes.LightGray // Optioneel om de cellen visueel te maken
+                        Background = Brushes.LightGray
                     };
-                    
-
                     // Voeg 5 rijen toe aan het geneste grid (1 voor dag/maand, 4 voor lege labels)
                     for (int r = 0; r < 5; r++)
                     {
                         dagGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
                     }
-
                     // Voeg 2 kolommen toe aan het geneste grid
                     for (int c = 0; c < 2; c++)
                     {
                         dagGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
                     }
-
                     // Voeg bovenste label toe (dag en maand)
                     Label lblDagMaand = new Label
                     {
@@ -152,7 +151,6 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
                         FontSize = 12,
                         BorderBrush = Brushes.Black,
                         BorderThickness = new Thickness(0.5)
-
                     };
                     Grid.SetRow(lblDagMaand, 0); // Eerste rij van 5
                     Grid.SetColumnSpan(lblDagMaand, 2); // Beslaat beide kolommen
@@ -168,20 +166,19 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
                                 Background = Brushes.White, // Optioneel
                                 BorderBrush = Brushes.Black,
                                 BorderThickness = new Thickness(0.5),
-                                
                             };
                             ComboBox cbx = new ComboBox
                             {
                                 Visibility = Visibility.Hidden
                             };
-
                             Grid.SetRow(lbl, subRij);
                             Grid.SetColumn(lbl, subKolom);
                             dagGrid.Children.Add(lbl);
+                            labelKalender.Add(lbl);
                             Grid.SetRow(cbx, subRij);
                             Grid.SetColumn(cbx, subKolom);
                             dagGrid.Children.Add(cbx);
-                            
+                            cbxKalender.Add(cbx);
                         }
                     }
                     // Voeg het geneste grid toe aan het hoofdgrid op de juiste rij/kolom
@@ -197,44 +194,39 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
                         huidigeRij++;
                     }
                 }
-
             }
-
-
         }
         private void Plan_Click(object sender, RoutedEventArgs e)
         {
             if (toggle)
             {
-                foreach (var child in GridKalender.Children)
+                foreach (Label lbl in labelKalender)
                 {
-                    if (child is ComboBox cbb)
-                    {
-                        cbb.Visibility = Visibility.Visible;
-                    }
-                    else if (child is Label lbl)
-                    {
-                        lbl.Visibility = Visibility.Hidden;
-                    }
+                    lbl.Visibility = Visibility.Hidden;
+                }
+                foreach (ComboBox cbx in cbxKalender)
+                {
+                    cbx.Visibility = Visibility.Visible;
                 }
             }
             else 
             {
-                foreach (var child in GridKalender.Children)
+                foreach (Label lbl in labelKalender)
                 {
-                    if (child is ComboBox cbb)
-                    {
-                        cbb.Visibility = Visibility.Hidden;
-                    }
-                    else if (child is Label lbl)
-                    {
-                        lbl.Visibility = Visibility.Visible;
-                    }
+                    lbl.Visibility = Visibility.Visible;
+                }
+                foreach (ComboBox cbx in cbxKalender)
+                {
+                    cbx.Visibility = Visibility.Hidden;
                 }
             }
             toggle = !toggle;
+        }
 
-
+        private void BtnNew_Click(object sender, RoutedEventArgs e)
+        {
+            NewPerson newPerson = new NewPerson();
+            newPerson.ShowDialog();
         }
     }
 }

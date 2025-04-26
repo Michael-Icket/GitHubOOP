@@ -7,8 +7,14 @@
         mc:Ignorable="d"
         Title="Planning Tool" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
     <StackPanel Orientation="Vertical">
-        <StackPanel Orientation="Horizontal">
-            <GroupBox Height="150" Width="550" Header="Periode">
+        <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="3*"/>
+                </Grid.ColumnDefinitions>
+            
+            <GroupBox Height="150" Header="Periode" Grid.Column="0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -24,27 +30,41 @@
                     </StackPanel>
                 </Grid>
             </GroupBox>
-            <GroupBox Height="150" Width="950" Header="Planning">
+            <GroupBox Height="150" Grid.Column="1" Header="Planning">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="3*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Vertical" Grid.Column="0">
                         <Button x:Name="Show" Content="Show" Width="120" Height="25" Margin="10" FontSize="15"></Button>
                         <Button x:Name="Plan" Content="Plan" Width="120" Height="25" Margin="5" FontSize="15" Click="Plan_Click"></Button>
-                        <Button x:Name="Fix" Content="Fix" Width="120" Height="25" Margin="10" FontSize="15"></Button>
+                        <Button x:Name="Fix" Content="Fix"  Width="120" Height="25" Margin="10" FontSize="15"></Button>
                     </StackPanel>
                     <StackPanel Orientation="Vertical" Grid.Column="1">
-                        <RadioButton Content="All" Width="150" Grid.Column="1" Margin="15" HorizontalAlignment="Center" IsChecked="True" />
-                        <RadioButton Content="Available" Width="150" Grid.Column="1" Margin="10" HorizontalAlignment="Center" />
+                        <RadioButton Content="All" Grid.Column="1" Margin="15" HorizontalAlignment="Left" IsChecked="True" />
+                        <RadioButton Content="Available" Grid.Column="1" Margin="10" HorizontalAlignment="Left" />
                     </StackPanel>
                     <TextBox IsReadOnly="True" VerticalScrollBarVisibility="Visible" Grid.Column="2"></TextBox>
                 </Grid>
             </GroupBox>
-        
-        </StackPanel>
+            <GroupBox Height="150" Grid.Column="2" Header="Login">
+                <Grid x:Name="GridLogin">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width ="1*"/>
+                        <ColumnDefinition Width ="2*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Vertical" Grid.Column="0">
+                        <TextBox Margin="10" Height="25" Width="120"> </TextBox>
+                        <Button x:Name="BtnLogin" Content="Login" FontSize="15" Width="120" Height="25" Margin="10"></Button>
+                        <Button x:Name="BtnNew" Width="120" Content="New" FontSize="15" Height="25" Margin="10" Click="BtnNew_Click"></Button>
+                    </StackPanel>
+                </Grid>
+                
+            </GroupBox>
+        </Grid>
+       
         <GroupBox Height="600" Width="1500" Header="Kalender">
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
             <Grid x:Name="Kalender">
