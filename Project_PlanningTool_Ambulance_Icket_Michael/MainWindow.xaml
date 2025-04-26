@@ -8,8 +8,7 @@
         Title="Planning Tool" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
     <StackPanel Orientation="Vertical">
         <StackPanel Orientation="Horizontal">
-            
-            <GroupBox Height="150" Width="500" Header="Periode">
+            <GroupBox Height="150" Width="550" Header="Periode">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -17,15 +16,15 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Vertical" Grid.Column="0">
                     <TextBlock Height="30" Width="150" Text="Maand" TextAlignment="Left" Grid.Column="0" HorizontalAlignment="Left" FontSize="15"></TextBlock>
-                        <ComboBox Height="30" Width="150" Text="" Grid.Column="0" HorizontalAlignment="Left" FontSize="12"></ComboBox>
+                        <ComboBox Name="CmbMaand" Height="30" Width="150" Text="" Grid.Column="0" HorizontalAlignment="Left" FontSize="12" SelectionChanged="CmbMaand_SelectionChanged"></ComboBox>
                     </StackPanel>
                     <StackPanel Orientation="Vertical" Grid.Column="1">
                         <TextBlock Height="30" Width="150" Text="Jaar" TextAlignment="Left" Grid.Column="1" HorizontalAlignment="Left" FontSize="15"></TextBlock>
-                        <ComboBox Height="30" Width="150" Text="" Grid.Column="1" HorizontalAlignment="Left" FontSize="12"></ComboBox>
+                        <ComboBox Name="CmbJaar" Height="30" Width="150" Text="" Grid.Column="1" HorizontalAlignment="Left" FontSize="12" SelectionChanged="CmbJaar_SelectionChanged"></ComboBox>
                     </StackPanel>
                 </Grid>
             </GroupBox>
-            <GroupBox Height="150" Width="900" Header="Planning">
+            <GroupBox Height="150" Width="950" Header="Planning">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -34,7 +33,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Vertical" Grid.Column="0">
                         <Button x:Name="Show" Content="Show" Width="120" Height="25" Margin="10" FontSize="15"></Button>
-                        <Button x:Name="Plan" Content="Plan" Width="120" Height="25" Margin="5" FontSize="15"></Button>
+                        <Button x:Name="Plan" Content="Plan" Width="120" Height="25" Margin="5" FontSize="15" Click="Plan_Click"></Button>
                         <Button x:Name="Fix" Content="Fix" Width="120" Height="25" Margin="10" FontSize="15"></Button>
                     </StackPanel>
                     <StackPanel Orientation="Vertical" Grid.Column="1">
@@ -42,21 +41,20 @@
                         <RadioButton Content="Available" Width="150" Grid.Column="1" Margin="10" HorizontalAlignment="Center" />
                     </StackPanel>
                     <TextBox IsReadOnly="True" VerticalScrollBarVisibility="Visible" Grid.Column="2"></TextBox>
-
                 </Grid>
             </GroupBox>
         
         </StackPanel>
-        <GroupBox Height="600" Width="1400" Header="Kalender">
+        <GroupBox Height="600" Width="1500" Header="Kalender">
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-            <Grid x:Name="GridKalender">
+            <Grid x:Name="Kalender">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                     <Grid Grid.Row="0">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="150"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
@@ -65,7 +63,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="Week" Margin="10" Grid.Column="0" Grid.Row="0" FontSize="25" TextAlignment="Center"></TextBlock>
+                        <TextBlock Text="Week - Uur" Margin="10" Grid.Column="0" Grid.Row="0" FontSize="25" TextAlignment="Left"></TextBlock>
                         <TextBlock Text="Maandag" Margin="10" Grid.Column="1" Grid.Row="0" FontSize="25" TextAlignment="Center"></TextBlock>
                         <TextBlock Text="Dinsdag" Margin="10" Grid.Column="2" Grid.Row="0" FontSize="25" TextAlignment="Center"></TextBlock>
                         <TextBlock Text="Woensdag" Margin="10" Grid.Column="3" Grid.Row="0" FontSize="25" TextAlignment="Center"></TextBlock>
@@ -76,36 +74,16 @@
                     </Grid>
                     <Grid Grid.Row="1">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="80"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition Width="150"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <TextBlock Text="1" Margin="10" Grid.Column="0" Grid.Row="0" FontSize="25" TextAlignment="Center"></TextBlock>
-                        <TextBlock Text="2" Margin="10" Grid.Column="0" Grid.Row="1" FontSize="25" TextAlignment="Center"></TextBlock>
-                        <TextBlock Text="3" Margin="10" Grid.Column="0" Grid.Row="2" FontSize="25" TextAlignment="Center"></TextBlock>
-                        <TextBlock Text="4" Margin="10" Grid.Column="0" Grid.Row="3" FontSize="25" TextAlignment="Center"></TextBlock>
-                        <TextBlock Text="5" Margin="10" Grid.Column="0" Grid.Row="4" FontSize="25" TextAlignment="Center"></TextBlock>
-                        <TextBlock Text="6" Margin="10" Grid.Column="0" Grid.Row="5" FontSize="25" TextAlignment="Center"></TextBlock>
+                        <Grid Name="GridWeek" Grid.Column="0">
+                        </Grid>
+                        <Grid  Name="GridUren" Grid.Column="1">
+                        </Grid>
+                        <Grid Grid.Column="2" Name="GridKalender">
+                        </Grid>
                     </Grid>
                 </Grid>
           </ScrollViewer>
