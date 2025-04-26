@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "eJLbUDfGaxU=",
+  "dgSpecHash": "aI5vI0FXyYY=",
   "success": true,
   "projectFilePath": "C:\\Users\\micha\\source\\Project OOP\\GitHubOOP\\Project_PlanningTool_Ambulance_Icket_Michael\\Project_PlanningTool_Ambulance_Icket_Michael.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\micha\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512"
+  ],
   "logs": []
 }

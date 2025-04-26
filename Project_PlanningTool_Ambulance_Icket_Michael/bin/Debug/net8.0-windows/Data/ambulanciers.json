@@ -1,0 +1,42 @@
+[
+  {
+    "Crijbewijs": true,
+    "Planner": false,
+    "JarenErvaring": 14,
+    "TypeAmbu": 0,
+    "WerknemerNummer": 1,
+    "Naam": "Icket",
+    "Voornaam": "Michael",
+    "Telefoonnr": "0495107087"
+  },
+  {
+    "Crijbewijs": true,
+    "Planner": false,
+    "JarenErvaring": 10,
+    "TypeAmbu": 0,
+    "WerknemerNummer": 2,
+    "Naam": "Jansen",
+    "Voornaam": "Michiel",
+    "Telefoonnr": "0456123456"
+  },
+  {
+    "Crijbewijs": false,
+    "Planner": true,
+    "JarenErvaring": 3,
+    "TypeAmbu": 0,
+    "WerknemerNummer": 3,
+    "Naam": "De Vries",
+    "Voornaam": "Anna",
+    "Telefoonnr": "0498765432"
+  },
+  {
+    "Crijbewijs": true,
+    "Planner": false,
+    "JarenErvaring": 5,
+    "TypeAmbu": 0,
+    "WerknemerNummer": 4,
+    "Naam": "Peeters",
+    "Voornaam": "Tom",
+    "Telefoonnr": "0466123987"
+  }
+]

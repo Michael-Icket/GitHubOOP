@@ -21,7 +21,7 @@
                 <TextBlock Margin="10" Height="20" FontSize="15" Text="Ambu-brevet (jaar)"/>
                 <TextBlock Margin="10" FontSize="15" Text="C-Rijbewijs"/>
                 <TextBlock Margin="10" FontSize="15" Text="Planner"/>
-                <Button x:Name="btnOpen" Margin="10" Height="25" FontSize="15" Content="Open" Click="btnOpen_Click"/>
+                <Button x:Name="BtnOpen" Margin="10" Height="25" FontSize="15" Content="Open" Click="BtnOpen_Click" />
             </StackPanel>
             <StackPanel x:Name="SpNewP" Background="LightBlue" Grid.Column="1">
                 <TextBox x:Name="TxtID" Margin="10" Height="20" FontSize="15" Width="150"/>
@@ -32,7 +32,7 @@
                 <TextBox x:Name="TxtJaar" Margin="10" Height="20" FontSize="15" Width="150"/>
                 <CheckBox x:Name="cbCrijbewijs" Margin="10" Height="20" HorizontalAlignment="Center"/>
                 <CheckBox x:Name="cbPlanner" Margin="10" Height="20" HorizontalAlignment="Center"/>
-                <Button x:Name="btnSave" Margin="10" Height="25" FontSize="15" Content="Save" Click="btnSave_Click"/>
+                <Button x:Name="BtnSave" Margin="10" Height="25" FontSize="15" Content="Save" Click="BtnSave_Click"/>
             </StackPanel>
         </Grid>
     </GroupBox>
