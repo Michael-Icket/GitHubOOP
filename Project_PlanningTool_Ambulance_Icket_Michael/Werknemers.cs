@@ -22,9 +22,5 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
             Voornaam = voornaam;
             Telefoonnr = telefoonnr;
         }
-        public void ToonInfo()
-        {
-            
-        }
     }
 }

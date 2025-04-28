@@ -8,12 +8,12 @@
         Title="Planning Tool" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
     <StackPanel Orientation="Vertical">
         <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*"/>
-                    <ColumnDefinition Width="3*"/>
-                    <ColumnDefinition Width="3*"/>
-                </Grid.ColumnDefinitions>
-            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+
             <GroupBox Height="150" Header="Periode" Grid.Column="0">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -21,16 +21,20 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Vertical" Grid.Column="0">
-                    <TextBlock Height="30" Width="150" Text="Maand" TextAlignment="Left" Grid.Column="0" HorizontalAlignment="Left" FontSize="15"></TextBlock>
-                        <ComboBox Name="CmbMaand" Height="30" Width="150" Text="" Grid.Column="0" HorizontalAlignment="Left" FontSize="12" SelectionChanged="CmbMaand_SelectionChanged"></ComboBox>
+                        <TextBlock Margin="5" Width="150" Text="Maand" TextAlignment="Left" Grid.Column="0" HorizontalAlignment="Left" FontSize="15"></TextBlock>
+                        <ComboBox Name="CmbMaand" Margin="5" Width="150" Text="" Grid.Column="0" HorizontalAlignment="Left" FontSize="12" SelectionChanged="CmbMaand_SelectionChanged"></ComboBox>
+                        <TextBlock Margin="5" Width="150" Text="Maximum Dag" TextAlignment="Left" Grid.Column="0" HorizontalAlignment="Left" FontSize="15"></TextBlock>
+                        <TextBox x:Name="TxtMaxDag" Margin="5" Width="150" TextAlignment="Left" Grid.Column="0" HorizontalAlignment="Left" FontSize="15"></TextBox>
                     </StackPanel>
                     <StackPanel Orientation="Vertical" Grid.Column="1">
                         <TextBlock Height="30" Width="150" Text="Jaar" TextAlignment="Left" Grid.Column="1" HorizontalAlignment="Left" FontSize="15"></TextBlock>
                         <ComboBox Name="CmbJaar" Height="30" Width="150" Text="" Grid.Column="1" HorizontalAlignment="Left" FontSize="12" SelectionChanged="CmbJaar_SelectionChanged"></ComboBox>
+                        <TextBlock Margin="5" Width="150" Text="Maximum Nacht" TextAlignment="Left" Grid.Column="0" HorizontalAlignment="Left" FontSize="15"></TextBlock>
+                        <TextBox x:Name="TxtMinDag" Margin="5" Width="150" TextAlignment="Left" Grid.Column="0" HorizontalAlignment="Left" FontSize="15"></TextBox>
                     </StackPanel>
                 </Grid>
             </GroupBox>
-            <GroupBox Height="150" Grid.Column="1" Header="Planning">
+            <GroupBox x:Name="GbPlanning" Height="150" Grid.Column="1" Header="Planning" Visibility="Hidden">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*"/>
@@ -38,12 +42,13 @@
                         <ColumnDefinition Width="3*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Vertical" Grid.Column="0">
-                        <Button x:Name="Show" Content="Show" Width="120" Height="25" Margin="10" FontSize="15"></Button>
-                        <Button x:Name="Plan" Content="Plan" Width="120" Height="25" Margin="5" FontSize="15" Click="Plan_Click"></Button>
-                        <Button x:Name="Fix" Content="Fix"  Width="120" Height="25" Margin="10" FontSize="15"></Button>
+                        <Button x:Name="BtnStart" Content="Start / Stop" Width="120" Height="25" Margin="3" FontSize="15" Click="Plan_Click"></Button>
+                        <Button x:Name="BtnPlan" Content="Plan" Width="120" Height="25" Margin="3" FontSize="15" Click="Plan_Click"></Button>
+                        <Button x:Name="BtnShow" Content="Show" Width="120" Height="25" Margin="3" FontSize="15"></Button>
+                        <Button x:Name="BtnSavePlan" Content="Save"  Width="120" Height="25" Margin="3" FontSize="15"></Button>
                     </StackPanel>
                     <StackPanel Orientation="Vertical" Grid.Column="1">
-                        <RadioButton Content="All" Grid.Column="1" Margin="15" HorizontalAlignment="Left" IsChecked="True" />
+                        <RadioButton Content="All" Grid.Column="1" Margin="10" HorizontalAlignment="Left" IsChecked="True" />
                         <RadioButton Content="Available" Grid.Column="1" Margin="10" HorizontalAlignment="Left" />
                     </StackPanel>
                     <TextBox IsReadOnly="True" VerticalScrollBarVisibility="Visible" Grid.Column="2"></TextBox>
@@ -56,25 +61,42 @@
                         <ColumnDefinition Width ="2*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Vertical" Grid.Column="0">
-                        <TextBox Margin="10" Height="25" Width="120"> </TextBox>
-                        <Button x:Name="BtnLogin" Content="Login" FontSize="15" Width="120" Height="25" Margin="10"></Button>
-                        <Button x:Name="BtnNew" Width="120" Content="New" FontSize="15" Height="25" Margin="10" Click="BtnNew_Click"></Button>
+                        <TextBox x:Name="TxtLogin" Margin="3" Height="25" Width="120"></TextBox>
+                        <Button x:Name="BtnLogin" Content="Login" FontSize="15" Width="120" Height="25" Margin="3" Click="BtnLogin_Click"></Button>
+                        <Button x:Name="BtnSave" Content="Save" FontSize="15" Width="120" Height="25" Margin="3" Click="BtnSave_Click"></Button>
+                        <Button x:Name="BtnNew" Width="120" Content="New" FontSize="15" Height="25" Margin="3" Click="BtnNew_Click" Visibility="Hidden"></Button>
+
                     </StackPanel>
+                    <Grid x:Name="GridGegevens" Grid.Column="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Label Name="LblGegevens1" Grid.Row="0" HorizontalAlignment="Stretch" Background="White" BorderBrush="Black" BorderThickness="0.5" FontSize="15" Margin="5"/>
+                        <Label Name="LblGegevens2" Grid.Row="1" HorizontalAlignment="Stretch" Background="White" BorderBrush="Black" BorderThickness="0.5" FontSize="15" Margin="5"/>
+                        <Grid Grid.Row="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width ="*"/>
+                                <ColumnDefinition Width ="*"/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox x:Name="cbPlanner" Grid.Column="0" Content="Planner"  FontSize="15" Margin="5" IsEnabled="False"/>
+                            <CheckBox x:Name="cbCRijbewijs" Grid.Column="1" Content="C-Rijbewijs" FontSize="15" Margin="5" IsEnabled="False"/>
+                        </Grid>
+                    </Grid>
                 </Grid>
-                
             </GroupBox>
         </Grid>
-       
         <GroupBox Height="600" Width="1500" Header="Kalender">
             <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-            <Grid x:Name="Kalender">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+                <Grid x:Name="Kalender">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
                     <Grid Grid.Row="0">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
@@ -83,7 +105,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="Week - Uur" Margin="10" Grid.Column="0" Grid.Row="0" FontSize="25" TextAlignment="Left"></TextBlock>
+                        <TextBlock Text="Week - Uur" Margin="10" Grid.Column="0" Grid.Row="0" FontSize="25" TextAlignment="Center"></TextBlock>
                         <TextBlock Text="Maandag" Margin="10" Grid.Column="1" Grid.Row="0" FontSize="25" TextAlignment="Center"></TextBlock>
                         <TextBlock Text="Dinsdag" Margin="10" Grid.Column="2" Grid.Row="0" FontSize="25" TextAlignment="Center"></TextBlock>
                         <TextBlock Text="Woensdag" Margin="10" Grid.Column="3" Grid.Row="0" FontSize="25" TextAlignment="Center"></TextBlock>
@@ -94,9 +116,9 @@
                     </Grid>
                     <Grid Grid.Row="1">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="30"/>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="21*"/>
                         </Grid.ColumnDefinitions>
                         <Grid Name="GridWeek" Grid.Column="0">
                         </Grid>
@@ -106,7 +128,7 @@
                         </Grid>
                     </Grid>
                 </Grid>
-          </ScrollViewer>
+            </ScrollViewer>
         </GroupBox>
     </StackPanel>
 </Window>

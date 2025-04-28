@@ -13,7 +13,7 @@
     "Crijbewijs": true,
     "Planner": false,
     "JarenErvaring": 10,
-    "TypeAmbu": 0,
+    "TypeAmbu": 2,
     "WerknemerNummer": 2,
     "Naam": "Jansen",
     "Voornaam": "Michiel",
@@ -38,5 +38,25 @@
     "Naam": "Peeters",
     "Voornaam": "Tom",
     "Telefoonnr": "0466123987"
+  },
+  {
+    "Crijbewijs": false,
+    "Planner": false,
+    "JarenErvaring": 2,
+    "TypeAmbu": 2,
+    "WerknemerNummer": 5,
+    "Naam": "Willems",
+    "Voornaam": "Sarah",
+    "Telefoonnr": "0485112233"
+  },
+  {
+    "Crijbewijs": true,
+    "Planner": true,
+    "JarenErvaring": 7,
+    "TypeAmbu": 2,
+    "WerknemerNummer": 6,
+    "Naam": "Claes",
+    "Voornaam": "Laura",
+    "Telefoonnr": "0478123344"
   }
 ]

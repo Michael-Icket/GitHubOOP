@@ -22,51 +22,29 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
     /// </summary>
     public partial class NewPerson : Window
     {
-        List<Ambulancier> ambulanciers = new List<Ambulancier>();
+        public List<Ambulancier> ambulanciers { get; private set; }
         string bestandspad;
-        public NewPerson()
+        string jsonMap;
+        public NewPerson(List<Ambulancier> ambu, string bestandspadM, string jsonMapM)
         {
             InitializeComponent();
-
             CmbTypeA.ItemsSource = Enum.GetValues(typeof(TypeAmbulancier));
-            string jsonMap = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
-            if (!Directory.Exists(jsonMap))
-            {
-                Directory.CreateDirectory(jsonMap);
-            }
-            bestandspad = System.IO.Path.Combine(jsonMap, "ambulanciers.json");
-            //MessageBox.Show($"Bestandspad ingesteld op: {bestandspad}");
-            openJSON();
-        }
-        private void setDefault()
-        {
-            foreach (var child in SpNewP.Children)
-            {
-                if (child is TextBox textbox)
-                {
-                    textbox.Clear();
-                }
-                if (child is ComboBox combobox)
-                {
-                    combobox.SelectedIndex = 0;
-                }
-                if (child is CheckBox checkbox)
-                {
-                    checkbox.IsChecked = false;
-                }
-            }
-        }
 
+            jsonMap = jsonMapM;
+            bestandspad = bestandspadM;
+            ambulanciers = ambu;
+        }
+        
         private void BtnSave_Click(object sender, RoutedEventArgs e)
         {
             bool CheckOK = true;
             CheckGegevens(ref CheckOK);
             if (CheckOK)
             {
-                int AmbuID = int.Parse(TxtID.Text);
-                var searchAmbu = ambulanciers.FirstOrDefault(a => a.WerknemerNummer == AmbuID);
+                Ambulancier searchAmbu = ZoekAmbulancier();
                 if (searchAmbu != null)
                 {
+                    MessageBox.Show($"Werknemersnummer {searchAmbu.WerknemerNummer} is reeds gekend, de gegevens worden overschreven.");
                     ChangeAmbulancier(searchAmbu);
                 }
                 else 
@@ -83,17 +61,18 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
             {
                 if (child is TextBox textBox && string.IsNullOrEmpty(textBox.Text))
                 {
-                    MessageBox.Show($"De TextBox '{textBox.Name}' is leeg. Vul deze in!");
+                    MessageBox.Show($"De TextBox '{textBox.Name}' is leeg. Vul deze in.");
                     check = false;
                     return check;
                 }
                 else if (child is ComboBox comboBox && comboBox.SelectedItem == null)
                 {
-                    MessageBox.Show($"De ComboBox '{comboBox.Name}' is niet geselecteerd. Kies een optie!");
+                    MessageBox.Show($"De ComboBox '{comboBox.Name}' is niet geselecteerd. Kies een optie.");
                     check = false;
                     return check;
                 }
             }
+
             return check;
         }
         private void ChangeAmbulancier(Ambulancier searchAmbu)
@@ -148,31 +127,49 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
                 MessageBox.Show($"Gegevens niet toegevoegd aan database: {ex.Message}");
             }
         }
-
+        private void setDefault()
+        {
+            foreach (var child in SpNewP.Children)
+            {
+                if (child is TextBox textbox)
+                {
+                    textbox.Clear();
+                }
+                if (child is ComboBox combobox)
+                {
+                    combobox.SelectedIndex = -1;
+                }
+                if (child is CheckBox checkbox)
+                {
+                    checkbox.IsChecked = false;
+                }
+            }
+        }
         private void BtnOpen_Click(object sender, RoutedEventArgs e)
         {
-            openJSON();
+            Ambulancier searchAmbu = ZoekAmbulancier();
+            VulGegevensIn(searchAmbu);
+        }
+        private Ambulancier ZoekAmbulancier()
+        {
             try
             {
                 int AmbuID = int.Parse(TxtID.Text);
                 var searchAmbu = ambulanciers.FirstOrDefault(a => a.WerknemerNummer == AmbuID);
-                VulGegevensIn(searchAmbu);
+                if (searchAmbu != null)
+                {
+                    return searchAmbu;
+                }
+                else
+                {
+                    MessageBox.Show($"Werknemersnummer {AmbuID} is niet gekend.");
+                    return null;
+                }
             }
-            catch (Exception)
+            catch (Exception er)
             {
-                MessageBox.Show($"Geen correcte ID: {TxtID.Text}");
-            }
-        }
-        private void openJSON()
-        {
-            try
-            {
-               string json = File.ReadAllText(bestandspad);
-               ambulanciers = JsonConvert.DeserializeObject<List<Ambulancier>>(json);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Gegevens konden niet worden geladen van de database: {ex.Message}");
+                MessageBox.Show($"Er ging iets fout {er.Message}");
+                return null;
             }
         }
         private void VulGegevensIn(Ambulancier ambulancier) 
@@ -183,9 +180,7 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
             TxtVNaam.Text = ambulancier.Voornaam;
             TxtTel.Text = ambulancier.Telefoonnr;
             TxtJaar.Text = (DateTime.Now.Year - ambulancier.JarenErvaring).ToString(); 
-            
-            CmbTypeA.SelectedItem = ambulancier.TypeAmbu.ToString();
-            
+            CmbTypeA.SelectedItem = ambulancier.TypeAmbu;
             cbCrijbewijs.IsChecked = ambulancier.Crijbewijs;
             cbPlanner.IsChecked = ambulancier.Planner;
         }

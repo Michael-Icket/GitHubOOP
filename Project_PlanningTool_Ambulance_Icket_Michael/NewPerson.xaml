@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Project_PlanningTool_Ambulance_Icket_Michael"
         mc:Ignorable="d"
         Title="NewPerson" SizeToContent="WidthAndHeight" Background="LightGray" ResizeMode="NoResize">
-    <GroupBox Background="LightGray" Header="Gegegevens Nieuwe Ambulancier">
+    <GroupBox Background="LightGray" Header="Gegegevens Ambulancier">
     <Grid Name="GridNewP" Width="350">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>

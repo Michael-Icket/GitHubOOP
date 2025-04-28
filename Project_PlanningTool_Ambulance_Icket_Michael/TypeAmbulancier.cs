@@ -8,8 +8,8 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
 {
     public enum TypeAmbulancier
     {
-        Beroeps,
         Vrijwilliger,
-        Extern
+        Extern,
+        Beroeps
     }
 }
