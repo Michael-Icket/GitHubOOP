@@ -30,7 +30,7 @@
                         <TextBlock Height="30" Width="150" Text="Jaar" TextAlignment="Left" Grid.Column="1" HorizontalAlignment="Left" FontSize="15"></TextBlock>
                         <ComboBox Name="CmbJaar" Height="30" Width="150" Text="" Grid.Column="1" HorizontalAlignment="Left" FontSize="12" SelectionChanged="CmbJaar_SelectionChanged"></ComboBox>
                         <TextBlock Margin="5" Width="150" Text="Maximum Nacht" TextAlignment="Left" Grid.Column="0" HorizontalAlignment="Left" FontSize="15"></TextBlock>
-                        <TextBox x:Name="TxtMinDag" Margin="5" Width="150" TextAlignment="Left" Grid.Column="0" HorizontalAlignment="Left" FontSize="15"></TextBox>
+                        <TextBox x:Name="TxtMaxNacht" Margin="5" Width="150" TextAlignment="Left" Grid.Column="0" HorizontalAlignment="Left" FontSize="15"></TextBox>
                     </StackPanel>
                 </Grid>
             </GroupBox>
@@ -42,16 +42,16 @@
                         <ColumnDefinition Width="3*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Vertical" Grid.Column="0">
-                        <Button x:Name="BtnStart" Content="Start / Stop" Width="120" Height="25" Margin="3" FontSize="15" Click="Plan_Click"></Button>
-                        <Button x:Name="BtnPlan" Content="Plan" Width="120" Height="25" Margin="3" FontSize="15" Click="Plan_Click"></Button>
-                        <Button x:Name="BtnShow" Content="Show" Width="120" Height="25" Margin="3" FontSize="15"></Button>
-                        <Button x:Name="BtnSavePlan" Content="Save"  Width="120" Height="25" Margin="3" FontSize="15"></Button>
+                        <Button x:Name="BtnStart" Content="Start / Stop" Width="120" Height="25" Margin="3" FontSize="15" IsEnabled="True" Click="Start_Click"></Button>
+                        <Button x:Name="BtnPlan" Content="Plan" Width="120" Height="25" Margin="3" FontSize="15" IsEnabled="False" Click="Plan_Click"></Button>
+                        <Button x:Name="BtnShow" Content="Show" Width="120" Height="25" Margin="3" FontSize="15" IsEnabled="False" Click="BtnShow_Click"></Button>
+                        <Button x:Name="BtnSavePlan" Content="Save"  Width="120" Height="25" Margin="3" IsEnabled="False" FontSize="15" Click="BtnSavePlan_Click"></Button>
                     </StackPanel>
                     <StackPanel Orientation="Vertical" Grid.Column="1">
-                        <RadioButton Content="All" Grid.Column="1" Margin="10" HorizontalAlignment="Left" IsChecked="True" />
-                        <RadioButton Content="Available" Grid.Column="1" Margin="10" HorizontalAlignment="Left" />
+                        <RadioButton Name="RbAll" Content="All" Grid.Column="1" Margin="10" HorizontalAlignment="Left" IsChecked="True" IsEnabled="False" Checked="RbAll_Checked" />
+                        <RadioButton Name ="RbAvailable" Content="Available" Grid.Column="1" Margin="10" HorizontalAlignment="Left" IsEnabled="False" Checked="RbAvailable_Checked"/>
                     </StackPanel>
-                    <TextBox IsReadOnly="True" VerticalScrollBarVisibility="Visible" Grid.Column="2"></TextBox>
+                    <TextBox Name="TxbError" IsReadOnly="True" VerticalScrollBarVisibility="Visible" Grid.Column="2"></TextBox>
                 </Grid>
             </GroupBox>
             <GroupBox Height="150" Grid.Column="2" Header="Login">
