@@ -30,8 +30,8 @@
     ]
   },
   {
-    "MaxDag": 7,
-    "MaxNacht": 6,
+    "MaxDag": 2,
+    "MaxNacht": 2,
     "AantalShifts": 178,
     "PlanningNr": "2025042",
     "PlanningIndexen": [

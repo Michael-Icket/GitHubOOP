@@ -13,6 +13,8 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
 
         public string Voornaam { get; set; }
 
+        public string DisplayName => $"{Naam} {Voornaam[0]}.";
+
         public string Telefoonnr { get; set; }
 
         protected Werknemers(int werknemernummer, string naam, string voornaam, string telefoonnr)

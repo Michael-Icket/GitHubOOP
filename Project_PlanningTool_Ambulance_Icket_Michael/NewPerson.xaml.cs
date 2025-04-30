@@ -50,7 +50,7 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
                 else 
                 {
                     NewAmbulancier();
-                    JSONSave();
+                    JSONSaveA();
                     setDefault();
                 }
             }
@@ -112,7 +112,7 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
                 MessageBox.Show($"Er is een fout opgetreden: {ex.Message}");
             }
         }
-        private void JSONSave()
+        private void JSONSaveA()
         {
             try
             {
@@ -148,7 +148,10 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
         private void BtnOpen_Click(object sender, RoutedEventArgs e)
         {
             Ambulancier searchAmbu = ZoekAmbulancier();
+            if(searchAmbu!=null)
+            { 
             VulGegevensIn(searchAmbu);
+            }
         }
         private Ambulancier ZoekAmbulancier()
         {

@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -22,15 +25,20 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
         private List<Label> labelKalender = new List<Label>();
         private List<ComboBox> cbxKalender = new List<ComboBox>();
         private List<int> IndexNr = new List<int>();
+        private List<Control> itemsPlanner = new List<Control>();
+        private List<Control> itemsUser = new List<Control>();
+        private List<string> foutmeldingen = new List<string>();
 
-        bool toggle = true;
+        bool switchPlan = true;
+        bool startstop = true;
         public List<Ambulancier> ambulanciers { get; set; }
-        public List<MaandPlanAmbu> maandPlanAmbus { get; set; } = new List<MaandPlanAmbu>();
-        public List<MaandPlanning> maandPlannings { get; set; } = new List<MaandPlanning>();
+        public List<Ambulancier> comboPlanAmbu { get; set; } = new List<Ambulancier>();
+        public List<List<MaandAmbu>> listmaandambu { get; set; } = new List<List<MaandAmbu>>();
+        public List<MaandPost> listmaandpost { get; set; } = new List<MaandPost>();
 
         string bestandspadAmbu;
         string bestandspadPlanAmbu;
-        string bestandspadMaandPlan;
+        string bestandspadPlanPost;
         string jsonMap;
 
         public MainWindow()
@@ -44,7 +52,7 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
                 Directory.CreateDirectory(jsonMap);
             }
             bestandspadAmbu = System.IO.Path.Combine(jsonMap, "ambulanciers.json");
-            openJSON();
+            openJsonFiles();
         }
         private void GenereerTime()
         {
@@ -54,17 +62,32 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
             int huidigeMaand = DateTime.Now.Month;
             List<string> jaren = new List<string>();
 
-            for (int i = huidigJaar - 2; i <= huidigJaar + 2; i++)
+            for (int i = huidigJaar - 3; i <= huidigJaar + 1; i++)
             {
                 jaren.Add(i.ToString());
             }
             CmbJaar.ItemsSource = jaren;
             CmbMaand.ItemsSource = Enum.GetValues(typeof(Maanden));
-            CmbJaar.SelectedIndex = 2;
+            CmbJaar.SelectedIndex = 3;
             CmbMaand.SelectedIndex = huidigeMaand - 1;
         }
         private void BasisGrid()
         {
+            // Vul item control lijsten 1 en 2
+            itemsPlanner.Add(RbAll);
+            itemsPlanner.Add(RbAvailable);
+            itemsPlanner.Add(BtnPlan);
+            itemsPlanner.Add(BtnSavePlan);
+            itemsPlanner.Add(BtnShow);
+
+            itemsUser.Add(TxtMaxNacht);
+            itemsUser.Add(TxtMaxDag);
+            itemsUser.Add(TxtLogin);
+            itemsUser.Add(BtnSave);
+            itemsUser.Add(BtnLogin);
+            itemsUser.Add(BtnNew);
+            itemsUser.Add(CmbJaar);
+            itemsUser.Add(CmbMaand);
             // Genereer Opmaak Week Nummer en Uren Shift
             int p = 0;
             for (int r = 0; r < 6; r++)
@@ -112,35 +135,87 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
                 GridKalender.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             }
         }
-        private void openJSON()
+        private void openJsonFiles()
         {
             try
             {
                 string json = File.ReadAllText(bestandspadAmbu);
                 ambulanciers = JsonConvert.DeserializeObject<List<Ambulancier>>(json);
-                //MessageBox.Show($"Gegevens geladen {ambulanciers.Count}");
+                //MessageBox.Show($"Ambulanciers geladen {ambulanciers.Count}");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Gegevens konden niet worden geladen van de database: {ex.Message}");
+                MessageBox.Show($"Ambulanciers konden niet worden geladen van de database: {ex.Message}");
+            }
+            try
+            {
+                foreach (var r in ambulanciers)
+                {
+                    while (listmaandambu.Count <= r.WerknemerNummer)
+                    {
+                        listmaandambu.Add(new List<MaandAmbu>());
+                    }
+                    bestandspadPlanAmbu = System.IO.Path.Combine(jsonMap, $"planning{r.WerknemerNummer}.json");
+                    if (File.Exists(bestandspadPlanAmbu))
+                    {
+                        string json = File.ReadAllText(bestandspadPlanAmbu);
+                        listmaandambu[r.WerknemerNummer] = (JsonConvert.DeserializeObject<List<MaandAmbu>>(json));
+                    }
+                }
+
+                //string lijstInhoud = "";
+                //foreach (var rij in listmaandambu)
+                //{
+                //    foreach (var planning in rij)
+                //    {
+                //        lijstInhoud += $"PlanningNr: {planning.PlanningNr}, MaxDag: {planning.MaxDag}, MaxNacht: {planning.MaxNacht}\n";
+                //    }
+                //}
+                //MessageBox.Show(lijstInhoud, "Inhoud van de lijst");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Planningen konden niet worden geladen van de database: {ex.Message}");
             }
         }
         private void CmbJaar_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             GridKalender.Children.Clear();
             labelKalender.Clear();
+            cbxKalender.Clear();
+            comboPlanAmbu.Clear();
             IndexNr.Clear();
             GenereerKalender();
-        }
+            if (string.IsNullOrEmpty(TxtLogin.Text) == false)
+            {
+                Ambulancier searchAmbu = ZoekAmbulancier();
+                if (searchAmbu != null)
+                {
+                    VulGegevensIn(searchAmbu);
+                    OpenJsonP(searchAmbu);
+                }
+            }
 
+        }
         private void CmbMaand_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             GridKalender.Children.Clear();
             labelKalender.Clear();
+            cbxKalender.Clear();
+            comboPlanAmbu.Clear();
             IndexNr.Clear();
             GenereerKalender();
+            if (string.IsNullOrEmpty(TxtLogin.Text) == false)
+            {
+                Ambulancier searchAmbu = ZoekAmbulancier();
+                if (searchAmbu != null)
+                {
+                    VulGegevensIn(searchAmbu);
+                    OpenJsonP(searchAmbu);
+                }
+            }
         }
-        private void GenereerKalender()
+        private void GenereerKalender() 
         {
             if (CmbMaand.SelectedItem != null && CmbJaar.SelectedItem != null)
             {
@@ -209,7 +284,9 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
                                 Visibility = Visibility.Hidden
                             };
 
+                            // events toevoegen aan label (linkermuisklik) en aan combobox (indexchanged)
                             lbl.MouseLeftButtonDown += Kliklabel_MouseLeftButtonDown;
+                            cbx.SelectionChanged += ComboBox_SelectedIndexChanged;
 
                             Grid.SetRow(lbl, subRij);
                             Grid.SetColumn(lbl, subKolom);
@@ -221,8 +298,12 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
                             Grid.SetColumn(cbx, subKolom);
                             dagGrid.Children.Add(cbx);
                             cbxKalender.Add(cbx);
+
+                            comboPlanAmbu.Add(null);
                         }
+
                     }
+
                     // Voeg het geneste grid toe aan het hoofdgrid op de juiste rij/kolom
                     Grid.SetRow(dagGrid, huidigeRij);
                     Grid.SetColumn(dagGrid, huidigeKolom);
@@ -302,9 +383,272 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
                 }
             }
         }
+        private void BtnNew_Click(object sender, RoutedEventArgs e)
+        {
+            NewPerson newPerson = new NewPerson(ambulanciers, bestandspadAmbu, jsonMap);
+            newPerson.ShowDialog();
+            ambulanciers = newPerson.ambulanciers;
+        }
+
+        private void BtnLogin_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(TxtLogin.Text) == false)
+            {
+                GridKalender.Children.Clear();
+                labelKalender.Clear();
+                cbxKalender.Clear();
+                comboPlanAmbu.Clear();
+                IndexNr.Clear();
+                GenereerKalender();
+                Ambulancier searchAmbu = ZoekAmbulancier();
+                if (searchAmbu != null)
+                {
+                    VulGegevensIn(searchAmbu);
+                    OpenJsonP(searchAmbu);
+                }
+            }
+            else { MessageBox.Show("Vul je AmbuID in"); }
+        }
+        private void ChangeAPlan(MaandAmbu searchAPlan)
+        {
+            Ambulancier searchAmbu = ZoekAmbulancier();
+            try
+            {
+                searchAPlan.MaxDag = int.Parse(TxtMaxDag.Text);
+                searchAPlan.MaxNacht = int.Parse(TxtMaxNacht.Text);
+                searchAPlan.PlanningIndexen = IndexNr;
+                searchAPlan.AantalShifts = IndexNr.Count();
+
+                bestandspadPlanAmbu = System.IO.Path.Combine(jsonMap, $"planning{searchAmbu.WerknemerNummer}.json");
+                string json = JsonConvert.SerializeObject(listmaandambu[searchAmbu.WerknemerNummer], Formatting.Indented);
+                File.WriteAllText(bestandspadPlanAmbu, json);
+                MessageBox.Show($"Planning {searchAPlan.PlanningNr} is gewijzigd");
+            }
+            catch (Exception er) { MessageBox.Show($"Vul de vakjes voor het maximum aantal nachten en dagen deze maand. {er.Message}"); }
+            return;
+        }
+        private MaandAmbu ZoekMaandAmbu()
+        {
+            Ambulancier searchAmbu = ZoekAmbulancier();
+            try
+            {
+                string APlanID = CmbJaar.SelectedItem.ToString() + (CmbMaand.SelectedIndex + 1).ToString("D2") + searchAmbu.WerknemerNummer.ToString();
+                var searchAPlan = listmaandambu[searchAmbu.WerknemerNummer].FirstOrDefault(a => a.PlanningNr == APlanID);
+
+                if (searchAPlan != null)
+                {
+                    return searchAPlan;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception er)
+            {
+                MessageBox.Show($"Er ging iets fout {er.Message}");
+                return null;
+            }
+        }
+        private Ambulancier ZoekAmbulancier()
+        {
+            try
+            {
+                int AmbuID = int.Parse(TxtLogin.Text);
+                var searchAmbu = ambulanciers.FirstOrDefault(a => a.WerknemerNummer == AmbuID);
+                if (searchAmbu != null)
+                {
+                    return searchAmbu;
+                }
+                else
+                {
+                    MessageBox.Show($"Werknemersnummer {AmbuID} is niet gekend.");
+                    return null;
+                }
+            }
+            catch (Exception er)
+            {
+                MessageBox.Show($"Er ging iets fout {er.Message}");
+                return null;
+            }
+        }
+        private void VulGegevensIn(Ambulancier ambulancier)
+        {
+            LblGegevens1.Content = ($"{ambulancier.Naam} {ambulancier.Voornaam} - tel: {ambulancier.Telefoonnr}");
+            LblGegevens2.Content = ($"Jaren ambulancier: {ambulancier.JarenErvaring} - {ambulancier.TypeAmbu}");
+            cbPlanner.IsChecked = ambulancier.Planner;
+            cbCRijbewijs.IsChecked = ambulancier.Crijbewijs;
+
+            if (ambulancier.Planner == true)
+            {
+                GbPlanning.Visibility = Visibility.Visible;
+                BtnNew.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                GbPlanning.Visibility = Visibility.Hidden;
+                BtnNew.Visibility = Visibility.Hidden;
+            }
+        }
+
+        public void OpenJsonP(Ambulancier searchAmbu)
+        {
+            MaandAmbu searchAPlan = ZoekMaandAmbu();
+            if (searchAPlan != null)
+            {
+                if (CmbMaand.SelectedItem != null && CmbJaar.SelectedItem != null)
+                {
+                    bestandspadAmbu = System.IO.Path.Combine(jsonMap, $"planning{searchAmbu.WerknemerNummer}.json");
+                    try
+                    {
+                        string json = File.ReadAllText(bestandspadAmbu);
+                        listmaandambu[searchAmbu.WerknemerNummer] = JsonConvert.DeserializeObject<List<MaandAmbu>>(json);
+                        //MessageBox.Show($"{searchAPlan.PlanningIndexen.Count} gegevens geladen");
+                        foreach (var i in searchAPlan.PlanningIndexen)
+                        {
+                            IndexNr.Add(i);
+                            labelKalender[i].Background = Brushes.LightGreen;
+                        }
+                        TxtMaxDag.Text = searchAPlan.MaxDag.ToString();
+                        TxtMaxNacht.Text = searchAPlan.MaxNacht.ToString();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Gegevens konden niet worden geladen van de database: {ex.Message}");
+                    }
+                }
+            }
+        }
+        private void BtnSave_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(TxtLogin.Text) || string.IsNullOrWhiteSpace(TxtMaxDag.Text) || string.IsNullOrWhiteSpace(TxtMaxNacht.Text))
+            {
+                MessageBox.Show($"Vul alle gegevens in: Max DagShifts en Max NachtShifts");
+            }
+            else
+            {
+                MaandAmbu searchAPlan = ZoekMaandAmbu();
+                if (searchAPlan == null)
+                {
+                    saveJSONP();
+                }
+                else
+                {
+                    ChangeAPlan(searchAPlan);
+                }
+            }
+        }
+        private void saveJSONP()
+        {
+            Ambulancier searchAmbu = ZoekAmbulancier();
+            if (searchAmbu != null)
+            {
+                string PlanningNr = CmbJaar.SelectedItem.ToString() + (CmbMaand.SelectedIndex + 1).ToString("D2") + searchAmbu.WerknemerNummer.ToString();
+                try
+                {
+                    int MaxD = int.Parse(TxtMaxDag.Text);
+                    int MaxN = int.Parse(TxtMaxNacht.Text);
+
+                    int aantalS = IndexNr.Count();
+                    MaandAmbu planAmbu = new MaandAmbu(MaxD, MaxN, aantalS, PlanningNr, IndexNr);
+                    listmaandambu[searchAmbu.WerknemerNummer].Add(planAmbu);
+
+                    MessageBox.Show($"Planning {planAmbu.PlanningNr} is toegevoegd");
+
+                    bestandspadPlanAmbu = System.IO.Path.Combine(jsonMap, $"planning{searchAmbu.WerknemerNummer}.json");
+                    string json = JsonConvert.SerializeObject(listmaandambu[searchAmbu.WerknemerNummer], Formatting.Indented);
+                    File.WriteAllText(bestandspadPlanAmbu, json);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Planning niet toegevoegd aan de database: {ex.Message}");
+                }
+            }
+        }
+
+        private void Start_Click(object sender, RoutedEventArgs e)
+        {
+            if (startstop)
+            {
+                GridKalender.Children.Clear();
+                labelKalender.Clear();
+                cbxKalender.Clear();
+                comboPlanAmbu.Clear();
+                IndexNr.Clear();
+                GenereerKalender();
+                foreach (var item in itemsPlanner)
+                {
+                    item.IsEnabled = true;
+                }
+                foreach (var item in itemsUser)
+                {
+                    item.IsEnabled = false;
+                }
+                foreach (var item in labelKalender)
+                {
+                    item.MouseLeftButtonDown -= Kliklabel_MouseLeftButtonDown;
+
+                }
+                RbAll.IsChecked = true;
+                TxtMaxDag.Text = null;
+                TxtMaxNacht.Text = null;
+
+            }
+            else
+            {
+                GridKalender.Children.Clear();
+                labelKalender.Clear();
+                cbxKalender.Clear();
+                comboPlanAmbu.Clear();
+                IndexNr.Clear();
+                GenereerKalender();
+                if (string.IsNullOrEmpty(TxtLogin.Text) == false)
+                {
+                    Ambulancier searchAmbu = ZoekAmbulancier();
+                    OpenJsonP(searchAmbu);
+                }
+                foreach (var item in itemsPlanner)
+                {
+                    item.IsEnabled = false;
+                }
+                foreach (var item in itemsUser)
+                {
+                    item.IsEnabled = true;
+                }
+            }
+            startstop = !startstop;
+
+
+            // comboboxen en list combPlanAmbu initialiseren?
+            //string APlanID;
+            //MaandAmbu searchAPlan = null;
+            //foreach (var cbx in cbxKalender)
+            //{
+            //    int i = cbxKalender.IndexOf(cbx);
+            //    foreach (var ambu in ambulanciers)
+            //    {
+            //        //MaandAmbu searchAPlan = ZoekMaandAmbu(); gaat niet omdat het werknemersnummer veranderd
+            //        APlanID = CmbJaar.SelectedItem.ToString() + (CmbMaand.SelectedIndex + 1).ToString("D2") + ambu.WerknemerNummer.ToString();
+            //        searchAPlan = listmaandambu[ambu.WerknemerNummer].FirstOrDefault(a => a.PlanningNr == APlanID);
+
+            //        if (searchAPlan != null)
+            //        {
+            //            if (searchAPlan.PlanningIndexen.Contains(i))
+            //            {
+            //                //MessageBox.Show("Hoera!");
+            //                cbx.Items.Add(ambu);
+            //                cbx.DisplayMemberPath = "DisplayName";
+            //                comboPlanAmbu[i] = ambu;
+            //            }
+            //        }
+            //    }
+            //}
+
+        }
         private void Plan_Click(object sender, RoutedEventArgs e)
         {
-            if (toggle)
+            VulComboboxen();
+            if (switchPlan)
             {
                 foreach (Label lbl in labelKalender)
                 {
@@ -326,96 +670,391 @@ namespace Project_PlanningTool_Ambulance_Icket_Michael
                     cbx.Visibility = Visibility.Hidden;
                 }
             }
-            toggle = !toggle;
-        }
-        private void BtnNew_Click(object sender, RoutedEventArgs e)
-        {
-            NewPerson newPerson = new NewPerson(ambulanciers, bestandspadAmbu, jsonMap);
-            newPerson.ShowDialog();
-            ambulanciers = newPerson.ambulanciers;
+            switchPlan = !switchPlan;
+            startstop = true;
+            switchPlan = true;
         }
 
-        private void BtnLogin_Click(object sender, RoutedEventArgs e)
+        private void BtnShow_Click(object sender, RoutedEventArgs e)
         {
-            GridKalender.Children.Clear();
-            labelKalender.Clear();
-            IndexNr.Clear();
-            GenereerKalender();
-            Ambulancier searchAmbu = ZoekAmbulancier();
-            if (searchAmbu != null)
+            foreach (Label lbl in labelKalender)
             {
-                VulGegevensIn(searchAmbu);
+                lbl.Visibility = Visibility.Visible;
+                VulLabelsPrio();
             }
-            else { MessageBox.Show("Vul je AmbuID in"); }
-        }
-        private Ambulancier ZoekAmbulancier()
-        {
-            try
+            foreach (ComboBox cbx in cbxKalender)
             {
-                int AmbuID = int.Parse(TxtLogin.Text);
-                var searchAmbu = ambulanciers.FirstOrDefault(a => a.WerknemerNummer == AmbuID);
-                if (searchAmbu != null)
+                cbx.Visibility = Visibility.Hidden;
+            }
+        }
+        private void VulLabelsPrio()
+        {
+            foreach (Label lbl in labelKalender)
+            {
+                int i = labelKalender.IndexOf(lbl);
+
+                if (cbxKalender[i].SelectedItem != null)
                 {
-                    return searchAmbu;
+                    labelKalender[i].Content = cbxKalender[i].Text;
+                    //CheckError(cbxKalender[i].SelectedItem as Ambulancier, i);
                 }
-                else{MessageBox.Show($"Werknemersnummer {AmbuID} is niet gekend.");
-                    return null;
-                }
-            }
-            catch (Exception er){MessageBox.Show($"Er ging iets fout {er.Message}");
-                return null;
+
             }
         }
-        private void VulGegevensIn(Ambulancier ambulancier)
+        private void ComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            LblGegevens1.Content = ($"{ambulancier.Naam} {ambulancier.Voornaam} - tel: {ambulancier.Telefoonnr}");
-            LblGegevens2.Content = ($"Jaren ambulancier: {ambulancier.JarenErvaring} - {ambulancier.TypeAmbu}");
-            cbPlanner.IsChecked = ambulancier.Planner;
-            cbCRijbewijs.IsChecked = ambulancier.Crijbewijs;
-            
-            if (ambulancier.Planner == true)
+            ComboBox cbx = sender as ComboBox;
+            int i = cbxKalender.IndexOf(cbx);
+            //nachtshift is altijd dubbel
+            if (i < (cbxKalender.Count - 3) && i > 1)
             {
-                GbPlanning.Visibility = Visibility.Visible;
-                BtnNew.Visibility = Visibility.Visible;
+                if (i % 8 == 6 || i % 8 == 7)
+                {
+                    cbxKalender[i + 2].SelectedItem = cbxKalender[i].SelectedItem;
+                    
+                }
+                if (i % 8 == 0 || i % 8 == 1)
+                {
+                    cbxKalender[i - 2].SelectedItem = cbxKalender[i].SelectedItem;
+                    
+                }
             }
-            else
+            RbAll.IsEnabled = false;
+            RbAvailable.IsEnabled = false;
+            BtnPlan.IsEnabled = false;
+
+
+            foreach (var combx in cbxKalender)
             {
-                GbPlanning.Visibility = Visibility.Hidden;
-                BtnNew.Visibility = Visibility.Hidden;
+                if (combx.SelectedItem != null)
+                {
+                    comboPlanAmbu[cbxKalender.IndexOf(combx)] = combx.SelectedItem as Ambulancier;
+                }
+                if (comboPlanAmbu[i] != null)
+                {
+                    CheckError(comboPlanAmbu[i], i);
+                }
             }
+
+            CheckError(cbxKalender[i].SelectedItem as Ambulancier, i);
+
+            //Alternatieve methode - bekijk alle comboxen op errors?
+            //CheckError();
+
+
+        }
+        private void CheckError()
+        {
+            //MaandAmbu searchAPlan = ZoekMaandAmbu(); gaat niet omdat het werknemersnummer veranderd
+            string APlanID;
+            MaandAmbu searchAPlan;
+
+            foreach (var item in comboPlanAmbu)
+            {
+                int j = comboPlanAmbu.IndexOf(item);
+                Ambulancier CheckAmbu = comboPlanAmbu[j];
+                if (comboPlanAmbu[j] != null)
+                {
+                    APlanID = CmbJaar.SelectedItem.ToString() + (CmbMaand.SelectedIndex + 1).ToString("D2") + CheckAmbu.WerknemerNummer.ToString();
+                    searchAPlan = listmaandambu[CheckAmbu.WerknemerNummer].FirstOrDefault(a => a.PlanningNr == APlanID);
+
+                    // controle dubbele boeking (twee maal ingepland op dezelfde dag)
+                    if (j % 2 == 0)
+                    {
+                        int dag = (j / 8) + 1;
+                        string foutmelding = $"{CheckAmbu.DisplayName} is dubbel geboekt op dag {dag}";
+                        if (cbxKalender[j].SelectedItem == cbxKalender[j + 1].SelectedItem)
+                        {
+
+                            if (!foutmeldingen.Contains(foutmelding))
+                            {
+                                foutmeldingen.Add(foutmelding);
+                            }
+                        }
+                        else if (cbxKalender[j].SelectedItem != cbxKalender[j + 1].SelectedItem)
+                        {
+                            if (foutmeldingen.Contains(foutmelding))
+                            {
+                                foutmeldingen.Remove(foutmelding);
+                            }
+                        }
+                        TxbError.Text = string.Join(Environment.NewLine, foutmeldingen);
+                    }
+                    else if (j % 2 == 1)
+                    {
+                        int dag = (j / 8) + 1;
+                        string foutmelding = $"{CheckAmbu.DisplayName} is dubbel geboekt op dag {dag}";
+                        if (cbxKalender[j].SelectedItem == cbxKalender[j - 1].SelectedItem)
+                        {
+                            if (!foutmeldingen.Contains(foutmelding))
+                            {
+                                foutmeldingen.Add(foutmelding);
+                            }
+                        }
+                        else if (j + 1 != cbxKalender.Count())
+                        {
+                            if (cbxKalender[j].SelectedItem != cbxKalender[j + 1].SelectedItem)
+                            {
+                                if (foutmeldingen.Contains(foutmelding))
+                                {
+                                    foutmeldingen.Remove(foutmelding);
+                                }
+
+                            }
+                        }
+                        TxbError.Text = string.Join(Environment.NewLine, foutmeldingen);
+                    }
+
+                    // controle op Max shifts dag en nacht
+                    if (j % 8 >= 6 || j % 8 < 2)
+                    {
+                        double CountMaxNacht = 0;
+                        foreach (var cbx in cbxKalender)
+                        {
+                            if (cbx.SelectedItem == CheckAmbu)
+                            {
+                                CountMaxNacht++;
+                            }
+                        }
+                        CountMaxNacht = CountMaxNacht / 2;
+                        string foutmelding = $"{CheckAmbu.DisplayName} Max nachtshiften: {searchAPlan.MaxNacht}";
+
+                        //MessageBox.Show(foutmelding);
+
+                        if (CountMaxNacht > searchAPlan.MaxNacht)
+                        {
+                            if (!foutmeldingen.Contains(foutmelding))
+                            {
+                                foutmeldingen.Add(foutmelding);
+                            }
+                        }
+                        else
+                        {
+                            if (foutmeldingen.Contains(foutmelding))
+                            {
+                                foutmeldingen.Remove(foutmelding);
+                            }
+                        }
+                        TxbError.Text = string.Join(Environment.NewLine, foutmeldingen);
+                    }
+                    else if (j % 8 >= 2 && j % 8 <= 5)
+                    {
+                        int CountMaxDag = 0;
+                        foreach (var cbx in cbxKalender)
+                        {
+                            if (cbx.SelectedItem == CheckAmbu)
+                            {
+                                CountMaxDag++;
+                            }
+                        }
+                        string foutmelding = $"{CheckAmbu.DisplayName} Max dagshiften: {searchAPlan.MaxDag}";
+
+                        //MessageBox.Show(foutmelding);
+
+                        if (CountMaxDag > searchAPlan.MaxDag)
+                        {
+                            if (!foutmeldingen.Contains(foutmelding))
+                            {
+                                foutmeldingen.Add(foutmelding);
+                            }
+                        }
+                        else
+                        {
+                            if (foutmeldingen.Contains(foutmelding))
+                            {
+                                foutmeldingen.Remove(foutmelding);
+                            }
+                        }
+                        TxbError.Text = string.Join(Environment.NewLine, foutmeldingen);
+                    }
+                }
+            }
+        }
+        private void CheckError(Ambulancier CheckAmbu, int j)
+        {
+            //MaandAmbu searchAPlan = ZoekMaandAmbu(); gaat niet omdat het werknemersnummer veranderd
+            string APlanID = CmbJaar.SelectedItem.ToString() + (CmbMaand.SelectedIndex + 1).ToString("D2") + CheckAmbu.WerknemerNummer.ToString();
+            MaandAmbu searchAPlan = listmaandambu[CheckAmbu.WerknemerNummer].FirstOrDefault(a => a.PlanningNr == APlanID);
+
+            if (j % 8 >= 6 || j % 8 < 2)
+            {
+                double CountMaxNacht = 0;
+                foreach (var cbx in cbxKalender)
+                {
+                    if (cbx.SelectedItem == CheckAmbu)
+                    {
+                        CountMaxNacht++;
+                    }
+                }
+                CountMaxNacht = CountMaxNacht / 2;
+                string foutmelding = $"{CheckAmbu.DisplayName} Max nachtshiften: {searchAPlan.MaxNacht}";
+
+                //MessageBox.Show(foutmelding);
+
+                if (CountMaxNacht > searchAPlan.MaxNacht)
+                {
+                    if (!foutmeldingen.Contains(foutmelding))
+                    {
+                        foutmeldingen.Add(foutmelding);
+                    }
+                }
+                else
+                {
+                    if (foutmeldingen.Contains(foutmelding))
+                    {
+                        foutmeldingen.Remove(foutmelding);
+                    }
+                }
+                TxbError.Text = string.Join(Environment.NewLine, foutmeldingen);
+            }
+            else if (j % 8 >= 2 && j % 8 <= 5)
+            {
+                int CountMaxDag = 0;
+                foreach (var cbx in cbxKalender)
+                {
+                    if (cbx.SelectedItem == CheckAmbu)
+                    {
+                        CountMaxDag++;
+                    }
+                }
+                string foutmelding = $"{CheckAmbu.DisplayName} Max dagshiften: {searchAPlan.MaxDag}";
+
+                //MessageBox.Show(foutmelding);
+
+                if (CountMaxDag > searchAPlan.MaxDag)
+                {
+                    if (!foutmeldingen.Contains(foutmelding))
+                    {
+                        foutmeldingen.Add(foutmelding);
+                    }
+                }
+                else
+                {
+                    if (foutmeldingen.Contains(foutmelding))
+                    {
+                        foutmeldingen.Remove(foutmelding);
+                    }
+                }
+                TxbError.Text = string.Join(Environment.NewLine, foutmeldingen);
+            }
+
+            if (j % 2 == 0)
+            {
+                int dag = (j / 8) + 1;
+                string foutmelding = $"{CheckAmbu.DisplayName} is dubbel geboekt op dag {dag}";
+                if (cbxKalender[j].SelectedItem == cbxKalender[j + 1].SelectedItem)
+                {
+
+                    if (!foutmeldingen.Contains(foutmelding))
+                    {
+                        foutmeldingen.Add(foutmelding);
+                    }
+                }
+                else if (cbxKalender[j].SelectedItem != cbxKalender[j + 1].SelectedItem)
+                {
+                    if (foutmeldingen.Contains(foutmelding))
+                    {
+                        foutmeldingen.Remove(foutmelding);
+                    }
+                }
+                TxbError.Text = string.Join(Environment.NewLine, foutmeldingen);
+            }
+            else if (j % 2 == 1)
+            {
+                int dag = (j / 8) + 1;
+                string foutmelding = $"{CheckAmbu.DisplayName} is dubbel geboekt op dag {dag}";
+                if (cbxKalender[j].SelectedItem == cbxKalender[j - 1].SelectedItem)
+                {
+                    if (!foutmeldingen.Contains(foutmelding))
+                    {
+                        foutmeldingen.Add(foutmelding);
+                    }
+                }
+                else if (j + 1 != cbxKalender.Count())
+                {
+                    if (cbxKalender[j].SelectedItem != cbxKalender[j + 1].SelectedItem)
+                    {
+                        if (foutmeldingen.Contains(foutmelding))
+                        {
+                            foutmeldingen.Remove(foutmelding);
+                        }
+
+                    }
+                }
+                TxbError.Text = string.Join(Environment.NewLine, foutmeldingen);
+            }
+
         }
 
-        private void BtnSave_Click(object sender, RoutedEventArgs e)
+
+        private void BtnSavePlan_Click(object sender, RoutedEventArgs e)
         {
-            Ambulancier searchAmbu = ZoekAmbulancier();
-            if (searchAmbu != null)
-            {
-                string PlanningNr = CmbJaar.SelectedItem.ToString() + (CmbMaand.SelectedIndex + 1).ToString("D2") + searchAmbu.WerknemerNummer.ToString("D2");
-                try
-                {
-                    int MaxD = int.Parse(TxtMaxDag.Text);
-                    int MinN = int.Parse(TxtMinDag.Text);
-                    int aantalS = IndexNr.Count();
-                    MaandPlanAmbu planAmbu = new MaandPlanAmbu(MaxD, MinN, aantalS, PlanningNr, IndexNr);
-                    maandPlanAmbus.Add(planAmbu);
-                    saveJSONP(planAmbu, searchAmbu.WerknemerNummer);
-                    MessageBox.Show($"Planning {planAmbu.PlanningNr} is toegevoegd");
-                }
-                catch (Exception er) { MessageBox.Show($"Vul de vakjes voor het maximum aantal nachten en dagen deze maand. {er.Message}"); }
-            }
-            else { MessageBox.Show("Vul je AmbuID in"); }
+
         }
-        private void saveJSONP(MaandPlanAmbu planAmbu, int AmbuID)
+
+        private void RbAll_Checked(object sender, RoutedEventArgs e)
         {
-            try
+            VulComboboxen();
+        }
+
+        private void RbAvailable_Checked(object sender, RoutedEventArgs e)
+        {
+            VulComboboxen();
+        }
+
+        public void VulComboboxen()
+        {
+            // nog te doen: kijk of er al labels zijn met namen
+            if (RbAll.IsChecked == true)
             {
-                bestandspadPlanAmbu = System.IO.Path.Combine(jsonMap, $"planning{AmbuID}.json");
-                string json = JsonConvert.SerializeObject(planAmbu, Formatting.Indented);
-                File.WriteAllText(bestandspadPlanAmbu, json);
+                foreach (var cbx in cbxKalender)
+                {
+                    cbx.Items.Clear();
+                    cbx.Items.Add(new {DisplayName =""});
+                    cbx.DisplayMemberPath = "DisplayName";
+                    foreach (var ambu in ambulanciers)
+                    {
+                        cbx.Items.Add(ambu);
+                        
+                    }
+                }
             }
-            catch (Exception ex)
+            else if (RbAvailable.IsChecked == true)
             {
-                MessageBox.Show($"Planning niet toegevoegd aan de database: {ex.Message}");
+
+                string APlanID;
+                MaandAmbu searchAPlan = null;
+
+                foreach (var cbx in cbxKalender)
+                {
+                    cbx.Items.Clear();
+                    cbx.Items.Add(new { DisplayName = "" });
+                    cbx.DisplayMemberPath = "DisplayName";
+                    //int i = cbxKalender.IndexOf(cbx);
+
+                    //if (comboPlanAmbu[i] != null)
+                    //{
+                    //    cbx.SelectedItem = comboPlanAmbu[i];
+                    //    cbx.DisplayMemberPath = "DisplayName";
+                    //}
+
+                    cbx.Items.Clear();
+                    foreach (var ambu in ambulanciers)
+                    {
+                        //MaandAmbu searchAPlan = ZoekMaandAmbu(); gaat niet omdat het werknemersnummer veranderd
+                        APlanID = CmbJaar.SelectedItem.ToString() + (CmbMaand.SelectedIndex + 1).ToString("D2") + ambu.WerknemerNummer.ToString();
+                        searchAPlan = listmaandambu[ambu.WerknemerNummer].FirstOrDefault(a => a.PlanningNr == APlanID);
+
+                        if (searchAPlan != null)
+                        {
+                            if (searchAPlan.PlanningIndexen.Contains(cbxKalender.IndexOf(cbx)))
+                            {
+                                //MessageBox.Show("Hoera!");
+                                cbx.Items.Add(ambu);
+                            }
+                        }
+                    }
+                }
             }
         }
     }

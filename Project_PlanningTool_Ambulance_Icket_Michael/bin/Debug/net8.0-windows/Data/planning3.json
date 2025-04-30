@@ -1,0 +1,67 @@
+[
+  {
+    "MaxDag": 0,
+    "MaxNacht": 0,
+    "AantalShifts": 0,
+    "PlanningNr": null,
+    "PlanningIndexen": null
+  },
+  {
+    "MaxDag": 0,
+    "MaxNacht": 0,
+    "AantalShifts": 0,
+    "PlanningNr": null,
+    "PlanningIndexen": null
+  },
+  {
+    "MaxDag": 0,
+    "MaxNacht": 0,
+    "AantalShifts": 0,
+    "PlanningNr": null,
+    "PlanningIndexen": null
+  },
+  {
+    "MaxDag": 0,
+    "MaxNacht": 0,
+    "AantalShifts": 0,
+    "PlanningNr": null,
+    "PlanningIndexen": null
+  },
+  {
+    "MaxDag": 0,
+    "MaxNacht": 0,
+    "AantalShifts": 0,
+    "PlanningNr": null,
+    "PlanningIndexen": null
+  },
+  {
+    "MaxDag": 0,
+    "MaxNacht": 0,
+    "AantalShifts": 0,
+    "PlanningNr": null,
+    "PlanningIndexen": null
+  },
+  {
+    "MaxDag": 5,
+    "MaxNacht": 4,
+    "AantalShifts": 15,
+    "PlanningNr": "2025043",
+    "PlanningIndexen": [
+      13,
+      67,
+      69,
+      71,
+      73,
+      119,
+      121,
+      123,
+      127,
+      129,
+      125,
+      87,
+      89,
+      85,
+      83
+    ]
+  }
+]

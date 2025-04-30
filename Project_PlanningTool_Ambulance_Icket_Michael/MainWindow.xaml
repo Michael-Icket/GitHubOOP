@@ -43,7 +43,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Vertical" Grid.Column="0">
                         <Button x:Name="BtnStart" Content="Start / Stop" Width="120" Height="25" Margin="3" FontSize="15" IsEnabled="True" Click="Start_Click"></Button>
-                        <Button x:Name="BtnPlan" Content="Plan" Width="120" Height="25" Margin="3" FontSize="15" IsEnabled="False" Click="Plan_Click"></Button>
+                        <Button x:Name="BtnPlan" Content="Planning" Width="120" Height="25" Margin="3" FontSize="15" IsEnabled="False" Click="Plan_Click"></Button>
                         <Button x:Name="BtnShow" Content="Show" Width="120" Height="25" Margin="3" FontSize="15" IsEnabled="False" Click="BtnShow_Click"></Button>
                         <Button x:Name="BtnSavePlan" Content="Save"  Width="120" Height="25" Margin="3" IsEnabled="False" FontSize="15" Click="BtnSavePlan_Click"></Button>
                     </StackPanel>
